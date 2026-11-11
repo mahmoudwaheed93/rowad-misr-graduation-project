@@ -1,53 +1,12 @@
-
 # 🏡 Aqar-AI (عقار ذكي) — Egyptian Real Estate RAG & Agentic Portal
 
 **Aqar-AI** is an end-to-end AI-powered real estate search, comparison, and reservation platform tailored for the Egyptian property market. It combines semantic vector retrieval (**Qdrant**), multi-source portal integration (**Property Finder Egypt**, **Nawy**, and **Aqarmap Egypt**), and autonomous agent orchestration (**LangGraph** + **LangChain**) behind a **FastAPI** backend and an interactive dark-mode web dashboard.
 
 ---
 
-## ✨ Key Features
-
-- **Multi-Source Property Ingestion & Validation:** Normalizes, validates, and deduplicates property listings (prices in EGP, area in sqm, bedrooms, bathrooms, payment plans, and compound amenities) across **Property Finder**, **Nawy**, and **Aqarmap**.
-- **Hybrid Vector + Metadata Search (Qdrant):** Encodes property documents into 384-dimensional dense embeddings (`sentence-transformers/all-MiniLM-L6-v2` / `intfloat/multilingual-e5-small`) with structured payload filtering for price ranges, bedroom counts, and locations.
-- **Stateful LangGraph AI Advisor:** Supports bilingual conversations (Arabic & English) with thread-level memory (`MemorySaver`) and autonomous tool-calling:
-  - `search_egypt_properties`: Queries the Qdrant vector database alongside live portal listings.
-  - `calculate_mortgage_installment`: Computes down payments (e.g., 10%) and monthly/quarterly installments over custom tenures.
-  - `submit_property_purchase_order`: Executes instant unit reservations, persists buyer orders to `data/orders/purchase_orders.json`, and provides direct checkout/listing links.
-- **Interactive 3-Column Dark Dashboard (`ui/index.html`):**
-  - **Left Column:** Live 4-stage pipeline visualizer & real-time execution logs.
-  - **Center Column:** Source-filterable property cards with interactive photo inspection modal, installment calculator, and 1-click reservation.
-  - **Right Column:** Bilingual LangGraph chat assistant that dynamically syncs recommended properties to the central grid.
-
----
-
-# 🏗️ System Architecture
+## 📂 Project Structure
 
 ```text
-[ Property Finder | Nawy | Aqarmap ] + [ Kaggle CSV Dataset (39.7k+ rows) ]
-                                  │
-                                  ▼
-                 1. LangGraph Ingestion & Validation
-              (Normalize EGP • Validate • Deduplicate)
-                                  │
-                                  ▼
-                 2. Embedding Model + Qdrant Vector DB
-               (384-dim Vectors + Structured Metadata)
-                                  │
-                                  ▼
-                 3. User Query Agent (LangGraph ReAct)
-         (Semantic Search • Compare • Installments • Reserve)
-                                  │
-                                  ▼
-                 4. FastAPI Backend + Web Portal UI
-
-
----
-
-
-
-# 📂 Project Structure
-
-
 aqar-ai/
 ├── app/
 │   ├── agents/
@@ -83,24 +42,24 @@ aqar-ai/
 ├── .env.example
 ├── requirements.txt
 └── README.md
+```
 
+---
 
+## 🚀 Getting Started
 
-##🚀 Getting Started
-
-1. Clone & Set Up Virtual Environment
-
-git clone [https://github.com/YOUR_USERNAME/aqar-ai.git](https://github.com/YOUR_USERNAME/aqar-ai.git)
-https://github.com/mahmoudwaheed93/rowad-misr-graduation-project
-cd aqar-ai
+### 1. Clone & Set Up Virtual Environment
+```powershell
+git clone [https://github.com/mahmoudwaheed93/rowad-misr-graduation-project.git](https://github.com/mahmoudwaheed93/rowad-misr-graduation-project.git)
+cd rowad-misr-graduation-project
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
+```
 
-
-2. Configure Environment Variables (.env)
-
-Create a .env file in the project root:
+### 2. Configure Environment Variables (`.env`)
+Create a `.env` file in the project root:
+```env
 PROJECT_NAME=Aqar-AI
 VERSION=0.1.0
 
@@ -116,44 +75,28 @@ QDRANT_COLLECTION=egypt_real_estate
 # Embeddings
 EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2
 EMBEDDING_DEVICE=cpu
+```
 
-3. Download Dataset & Build Qdrant Index
-Download the Real Estate Listings Dataset and place it at data/raw/properties.csv, then run the indexing pipeline:
-
-PowerShell
-python -m app.rag.indexing
-4. Start the FastAPI Server & Web Portal
-PowerShell
-python -m uvicorn app.main:app --reload --port 8000
-Web Portal & AI Chatbot: http://127.0.0.1:8000/
-
-
-# 🛠️ Tech Stack
-Data Processing: Python, Pandas, BeautifulSoup4, HTTPX
-
-Embeddings: HuggingFace Sentence-Transformers (384-dim)
-
-Vector Database: Qdrant (qdrant-client, langchain-qdrant)
-
-RAG & Agent Orchestration: LangChain, LangGraph
-
-LLM Inference: OpenRouter / Groq / llama.cpp (meta-llama/llama-3.3-70b-instruct)
-
-Backend & Frontend: FastAPI, Uvicorn, TailwindCSS, Vanilla JS
-'@ | Set-Content -Path "D:\users\aqar-ai\README.md" -Encoding UTF8
-
-
-If you also want a safe `.env.example` template committed to your repository so anyone cloning your repo knows which variables to set without seeing your secret API key, run:
-
+### 3. Download Dataset & Build Qdrant Index
+Download the [Real Estate Listings Dataset](https://www.kaggle.com/datasets/waddahali/real-estate-listings) and place it at `data/raw/properties.csv`, then run the indexing pipeline:
 ```powershell
-@'
-PROJECT_NAME=Aqar-AI
-VERSION=0.1.0
-LLM_BASE_URL=https://openrouter.ai/api/v1
-LLM_API_KEY=your_openrouter_or_groq_api_key_here
-LLM_MODEL=meta-llama/llama-3.3-70b-instruct
-QDRANT_LOCAL_PATH=./qdrant_storage
-QDRANT_COLLECTION=egypt_real_estate
-EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2
-EMBEDDING_DEVICE=cpu
-'@ | Set-Content -Path "D:\users\aqar-ai\.env.example" -Encoding UTF8
+python -m app.rag.indexing
+```
+
+### 4. Start the FastAPI Server & Web Portal
+```powershell
+python -m uvicorn app.main:app --reload --port 8000
+```
+- **Web Portal & AI Chatbot:** [http://127.0.0.1:8000/](http://127.0.0.1:8000/)
+- **Interactive Swagger API Docs:** [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+
+---
+
+## 🛠️ Tech Stack
+
+- **Data Processing:** Python, Pandas, BeautifulSoup4, HTTPX
+- **Embeddings:** HuggingFace Sentence-Transformers (`384-dim`)
+- **Vector Database:** Qdrant (`qdrant-client`, `langchain-qdrant`)
+- **RAG & Agent Orchestration:** LangChain, LangGraph
+- **LLM Inference:** OpenRouter / Groq / `llama.cpp` (`meta-llama/llama-3.3-70b-instruct`)
+- **Backend & Frontend:** FastAPI, Uvicorn, TailwindCSS, Vanilla JS
