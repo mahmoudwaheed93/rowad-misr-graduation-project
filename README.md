@@ -84,9 +84,9 @@ aqar-ai/
 🚀 Getting Started
 
 1. Clone & Set Up Virtual Environment
-<img width="639" height="47" alt="image" src="https://github.com/user-attachments/assets/039c1011-4ad1-45a2-8424-2f91e3912268" />
 
 git clone [https://github.com/YOUR_USERNAME/aqar-ai.git](https://github.com/YOUR_USERNAME/aqar-ai.git)
+https://github.com/mahmoudwaheed93/rowad-misr-graduation-project
 cd aqar-ai
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
