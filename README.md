@@ -42,30 +42,6 @@
 
 
 ---
----
-
-# 🏗️ System Architecture
-
-```text
-[ Property Finder | Nawy | Aqarmap ] + [ Kaggle CSV Dataset (39.7k+ rows) ]
-                                  │
-                                  ▼
-                 1. LangGraph Ingestion & Validation
-              (Normalize EGP • Validate • Deduplicate)
-                                  │
-                                  ▼
-                 2. Embedding Model + Qdrant Vector DB
-               (384-dim Vectors + Structured Metadata)
-                                  │
-                                  ▼
-                 3. User Query Agent (LangGraph ReAct)
-         (Semantic Search • Compare • Installments • Reserve)
-                                  │
-                                  ▼
-                 4. FastAPI Backend + Web Portal UI
-
-
----
 
 
 
