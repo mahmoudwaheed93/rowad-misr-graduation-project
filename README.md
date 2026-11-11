@@ -1,4 +1,4 @@
-@'
+
 # 🏡 Aqar-AI (عقار ذكي) — Egyptian Real Estate RAG & Agentic Portal
 
 **Aqar-AI** is an end-to-end AI-powered real estate search, comparison, and reservation platform tailored for the Egyptian property market. It combines semantic vector retrieval (**Qdrant**), multi-source portal integration (**Property Finder Egypt**, **Nawy**, and **Aqarmap Egypt**), and autonomous agent orchestration (**LangGraph** + **LangChain**) behind a **FastAPI** backend and an interactive dark-mode web dashboard.
@@ -20,7 +20,7 @@
 
 ---
 
-## 🏗️ System Architecture
+# 🏗️ System Architecture
 
 ```text
 [ Property Finder | Nawy | Aqarmap ] + [ Kaggle CSV Dataset (39.7k+ rows) ]
@@ -43,7 +43,7 @@
 
 ---
 
-## 📂 Project Structure
+# 📂 Project Structure
 
 
 aqar-ai/
@@ -126,7 +126,7 @@ python -m uvicorn app.main:app --reload --port 8000
 Web Portal & AI Chatbot: http://127.0.0.1:8000/
 
 
-##🛠️ Tech Stack
+# 🛠️ Tech Stack
 Data Processing: Python, Pandas, BeautifulSoup4, HTTPX
 
 Embeddings: HuggingFace Sentence-Transformers (384-dim)
