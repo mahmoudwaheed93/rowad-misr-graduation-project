@@ -81,7 +81,7 @@ aqar-ai/
 
 
 
-🚀 Getting Started
+##🚀 Getting Started
 
 1. Clone & Set Up Virtual Environment
 
@@ -123,7 +123,7 @@ python -m uvicorn app.main:app --reload --port 8000
 Web Portal & AI Chatbot: http://127.0.0.1:8000/
 
 
-5 🛠️ Tech Stack
+##🛠️ Tech Stack
 Data Processing: Python, Pandas, BeautifulSoup4, HTTPX
 
 Embeddings: HuggingFace Sentence-Transformers (384-dim)
