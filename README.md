@@ -39,3 +39,116 @@
                                   │
                                   ▼
                  4. FastAPI Backend + Web Portal UI
+
+
+📂 Project Structure
+
+aqar-ai/
+├── app/
+│   ├── agents/
+│   │   └── real_estate_agent.py   # LangGraph ReAct agent & tool orchestration
+│   ├── api/
+│   │   └── routes.py              # FastAPI endpoints (/search, /rag, /chat)
+│   ├── core/
+│   │   └── config.py              # Pydantic settings & environment configuration
+│   ├── memory/
+│   │   └── session_memory.py      # LangGraph conversation thread checkpointer
+│   ├── rag/
+│   │   ├── ingestion.py           # Multi-source CSV cleaning & JSON serialization
+│   │   ├── chunking.py            # LangChain Document preparation
+│   │   ├── embeddings.py          # HuggingFace 384-dim embedding model loader
+│   │   ├── vector_store.py        # Qdrant client & collection management
+│   │   ├── indexing.py            # Batch vector upsert pipeline
+│   │   ├── retrieval.py           # Semantic search + Qdrant metadata filters
+│   │   └── generation.py          # LCEL RAG prompt & LLM chain
+│   ├── schemas/
+│   │   └── property.py            # Pydantic request/response models
+│   ├── tools/
+│   │   └── property_tools.py      # Agent tools (Search, Installments, Purchase Order)
+│   └── main.py                    # FastAPI application entrypoint & UI server
+├── data/
+│   ├── raw/
+│   │   └── properties.csv         # Raw dataset (Kaggle waddahali/real-estate-listings)
+│   ├── processed/
+│   │   └── property_documents.json
+│   └── orders/
+│       └── purchase_orders.json   # Generated buyer reservation records
+├── ui/
+│   └── index.html                 # 3-Column Dark Dashboard & Chatbot UI
+├── .env.example
+├── requirements.txt
+└── README.md
+
+
+
+🚀 Getting Started
+
+1. Clone & Set Up Virtual Environment
+<img width="639" height="47" alt="image" src="https://github.com/user-attachments/assets/039c1011-4ad1-45a2-8424-2f91e3912268" />
+
+git clone [https://github.com/YOUR_USERNAME/aqar-ai.git](https://github.com/YOUR_USERNAME/aqar-ai.git)
+cd aqar-ai
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+
+
+2. Configure Environment Variables (.env)
+
+Create a .env file in the project root:
+PROJECT_NAME=Aqar-AI
+VERSION=0.1.0
+
+# LLM Provider (OpenRouter / Groq / OpenAI / Local llama-server)
+LLM_BASE_URL=[https://openrouter.ai/api/v1](https://openrouter.ai/api/v1)
+LLM_API_KEY=your_api_key_here
+LLM_MODEL=meta-llama/llama-3.3-70b-instruct
+
+# Qdrant Vector Store
+QDRANT_LOCAL_PATH=./qdrant_storage
+QDRANT_COLLECTION=egypt_real_estate
+
+# Embeddings
+EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2
+EMBEDDING_DEVICE=cpu
+
+3. Download Dataset & Build Qdrant Index
+Download the Real Estate Listings Dataset and place it at data/raw/properties.csv, then run the indexing pipeline:
+
+PowerShell
+python -m app.rag.indexing
+4. Start the FastAPI Server & Web Portal
+PowerShell
+python -m uvicorn app.main:app --reload --port 8000
+Web Portal & AI Chatbot: http://127.0.0.1:8000/
+
+
+5 🛠️ Tech Stack
+Data Processing: Python, Pandas, BeautifulSoup4, HTTPX
+
+Embeddings: HuggingFace Sentence-Transformers (384-dim)
+
+Vector Database: Qdrant (qdrant-client, langchain-qdrant)
+
+RAG & Agent Orchestration: LangChain, LangGraph
+
+LLM Inference: OpenRouter / Groq / llama.cpp (meta-llama/llama-3.3-70b-instruct)
+
+Backend & Frontend: FastAPI, Uvicorn, TailwindCSS, Vanilla JS
+'@ | Set-Content -Path "D:\users\aqar-ai\README.md" -Encoding UTF8
+
+
+If you also want a safe `.env.example` template committed to your repository so anyone cloning your repo knows which variables to set without seeing your secret API key, run:
+
+```powershell
+@'
+PROJECT_NAME=Aqar-AI
+VERSION=0.1.0
+LLM_BASE_URL=https://openrouter.ai/api/v1
+LLM_API_KEY=your_openrouter_or_groq_api_key_here
+LLM_MODEL=meta-llama/llama-3.3-70b-instruct
+QDRANT_LOCAL_PATH=./qdrant_storage
+QDRANT_COLLECTION=egypt_real_estate
+EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2
+EMBEDDING_DEVICE=cpu
+'@ | Set-Content -Path "D:\users\aqar-ai\.env.example" -Encoding UTF8
