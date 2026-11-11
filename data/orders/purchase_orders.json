@@ -1,0 +1,17 @@
+[
+  {
+    "order_id": "ORD-20261108-170841",
+    "timestamp": "2026-11-08T17:08:41.081029",
+    "property_id": "503YT1RSTY4RW8DYKMQD9V4FJC)",
+    "property_title": "Lowest price Villa 332m Finished Palm Hills+instal",
+    "source_portal": "Nawy",
+    "price_egp": 5000000.0,
+    "down_payment_egp": 500000.0,
+    "estimated_monthly_egp": 46875.0,
+    "payment_plan": "10% Down Payment - 8 Years Installments",
+    "buyer_name": "Valued Buyer",
+    "buyer_phone": "+201000000000",
+    "portal_checkout_url": "https://www.nawy.com/search?q=Lowest+price+Villa+332m+Finished+Palm+Hills%2Binstal",
+    "status": "RESERVED_PENDING_CONTRACT"
+  }
+]

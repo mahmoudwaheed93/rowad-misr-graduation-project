@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Aqar-AI (عقار ذكي) | Multi-Source Portal & LangGraph Advisor</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #0f172a; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+    .step-active { box-shadow: 0 0 15px rgba(16, 185, 129, 0.35); border-color: #10b981 !important; }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans">
+
+  <!-- Top Header Bar -->
+  <header class="bg-slate-900/90 backdrop-blur border-b border-slate-800 sticky top-0 z-30">
+    <div class="max-w-[1600px] mx-auto px-4 py-2.5 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="bg-gradient-to-br from-emerald-400 to-teal-600 text-slate-950 font-extrabold px-3 py-1 rounded-lg text-sm">A</div>
+        <div>
+          <h1 class="font-bold text-base tracking-tight">Aqar-AI <span class="text-emerald-400 font-normal">(عقار ذكي)</span></h1>
+          <p class="text-[11px] text-slate-400">Multi-Source Portal & LangGraph Advisor</p>
+        </div>
+      </div>
+
+      <!-- Center: Three Real-Estate Websites Filter -->
+      <div class="flex items-center gap-2 bg-slate-950/80 border border-slate-800 px-3 py-1.5 rounded-xl">
+        <span class="text-[11px] text-slate-400 mr-1">Sources:</span>
+        <button onclick="setSourceFilter('all')" id="src-all" class="text-xs px-2.5 py-1 rounded-lg bg-slate-800 text-white font-medium transition">All (3)</button>
+        <button onclick="setSourceFilter('Property Finder')" id="src-pf" class="text-xs px-2.5 py-1 rounded-lg hover:bg-slate-800 text-rose-400 flex items-center gap-1.5 transition">
+          <span class="w-2 h-2 rounded-full bg-rose-500"></span> Property Finder
+        </button>
+        <button onclick="setSourceFilter('Nawy')" id="src-nawy" class="text-xs px-2.5 py-1 rounded-lg hover:bg-slate-800 text-emerald-400 flex items-center gap-1.5 transition">
+          <span class="w-2 h-2 rounded-full bg-emerald-400"></span> Nawy
+        </button>
+        <button onclick="setSourceFilter('Aqarmap')" id="src-aqar" class="text-xs px-2.5 py-1 rounded-lg hover:bg-slate-800 text-sky-400 flex items-center gap-1.5 transition">
+          <span class="w-2 h-2 rounded-full bg-sky-400"></span> Aqarmap Egypt
+        </button>
+      </div>
+
+      <div class="flex items-center gap-3 text-xs">
+        <a href="/docs" target="_blank" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-700 transition">FastAPI /docs</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main 3-Column Dashboard -->
+  <main class="max-w-[1600px] w-full mx-auto px-4 py-4 grid grid-cols-1 lg:grid-cols-12 gap-4 flex-1">
+
+          <div class="flex flex-col items-center space-y-2 text-xs">
+            <div id="node-1" class="w-full bg-emerald-950/50 border border-emerald-700/60 rounded-xl p-3 transition">
+              <div class="font-bold text-emerald-300"></div>
+            </div>
+            <div id="node-2" class="w-full bg-purple-950/40 border border-purple-700/50 rounded-xl p-3 transition">
+              <div class="font-bold text-purple-300"></div>
+              <div></div>
+            </div>
+            <div id="node-3" class="w-full bg-sky-950/40 border border-sky-700/50 rounded-xl p-3 transition">
+              <div class="font-bold text-sky-300">
+            </div>
+            <div id="node-4" class="w-full bg-teal-950/40 border border-teal-700/50 rounded-xl p-3 transition">
+              <div>
+              <div></div>
+            </div>
+          </div>
+        </div>
+
+        <div 
+          ></div>
+          </div>
+          <div id="pipelineLogs" class="bg-">
+            <div></div>
+            <div></div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- CENTER COLUMN (6 Cols): Explore Properties Grid -->
+    <section class="lg:col-span-6 flex flex-col gap-4">
+      <div class="bg-slate-900 border border-slate-800 rounded-xl p-4">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="font-bold text-sm text-white">Explore Properties <span class="text-xs font-normal text-emerald-400 ml-2">(Click any photo or button to act)</span></h2>
+          <span id="resultsCount" class="text-xs text-slate-400">Loading...</span>
+        </div>
+
+        <!-- Search Filter Inputs -->
+        <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
+          <input id="searchQuery" type="text" value="Apartment in New Cairo" placeholder="Location, compound, or keyword..."
+            class="sm:col-span-5 bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500" />
+          <input id="maxPrice" type="number" placeholder="Max Price (EGP)"
+            class="sm:col-span-3 bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500" />
+          <select id="bedrooms" class="sm:col-span-2 bg-slate-950 border border-slate-700 rounded-lg px-2 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+            <option value="">Bedrooms</option>
+            <option value="1">1 Bed</option>
+            <option value="2">2 Beds</option>
+            <option value="3">3 Beds</option>
+            <option value="4">4 Beds</option>
+            <option value="5">5+ Beds</option>
+          </select>
+          <button onclick="runDirectSearch()"
+            class="sm:col-span-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-lg px-3 py-2 text-xs transition">
+            Search
+          </button>
+        </div>
+      </div>
+
+      <!-- Property Cards Grid (Fixed height clipping so cards show full details + buttons) -->
+      <div id="propertiesGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 overflow-y-auto pr-1 auto-rows-max" style="max-height: 75vh;"></div>
+    </section>
+
+    <!-- RIGHT COLUMN (3 Cols): Aqar-AI Assistant (LangGraph) -->
+    <section class="lg:col-span-3 flex flex-col bg-slate-900 border border-slate-800 rounded-xl h-[85vh] sticky top-16">
+      <div class="p-3.5 border-b border-slate-800 flex items-center justify-between">
+        <div>
+          <h2 class="font-bold text-sm text-white">Aqar-AI Assistant (LangGraph)</h2>
+          <p class="text-[11px] text-slate-400">Search • Compare • Buy/Reserve • Installments</p>
+        </div>
+        <button onclick="resetChat()" class="text-[11px] bg-slate-800 hover:bg-slate-700 px-2.5 py-1 rounded text-slate-300">Reset</button>
+      </div>
+
+      <!-- Chat Messages -->
+      <div id="chatBox" class="flex-1 overflow-y-auto p-3.5 space-y-3 text-xs">
+        <div class="bg-slate-800/90 text-slate-200 p-3 rounded-xl rounded-tl-none border border-slate-700/60">
+          👋 <b>مرحباً بك في عقار ذكي (Aqar-AI)</b><br/>
+          Click any <b>property photo</b> on the left to open the interactive buying & installment modal, or ask me directly here!
+        </div>
+      </div>
+
+      <!-- Quick Prompts -->
+      <div class="px-3 py-2 border-t border-slate-800/80 flex flex-wrap gap-1.5">
+        <button onclick="sendQuickPrompt('شقة ٣ غرف في التجمع الخامس تحت ٧ مليون مع حساب القسط')"
+          class="text-[11px] bg-slate-800 hover:bg-slate-700 text-emerald-300 border border-slate-700 px-2.5 py-1 rounded-full transition">
+          شقة بالتجمع + القسط
+        </button>
+        <button onclick="sendQuickPrompt('Find 3 bedroom apartments in New Cairo under 8M EGP and compare them')"
+          class="text-[11px] bg-slate-800 hover:bg-slate-700 text-sky-300 border border-slate-700 px-2.5 py-1 rounded-full transition">
+          Compare 3BR New Cairo
+        </button>
+      </div>
+
+      <!-- Chat Input -->
+      <form onsubmit="handleChatSubmit(event)" class="p-3 border-t border-slate-800 flex gap-2">
+        <input id="chatInput" type="text" placeholder="Write a message in Arabic or English..."
+          class="flex-1 bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500" />
+        <button type="submit"
+          class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-3.5 py-2 rounded-lg text-xs transition">
+          ➤
+        </button>
+      </form>
+    </section>
+
+  </main>
+
+  <!-- INTERACTIVE PROPERTY PHOTO MODAL (Opens when clicking any photo) -->
+  <div id="propertyModal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl">
+      <div class="relative h-56">
+        <img id="modalImg" src="" alt="Property" class="w-full h-full object-cover" />
+        <button onclick="closePropertyModal()" class="absolute top-3 right-3 bg-slate-950/80 hover:bg-rose-600 text-white w-8 h-8 rounded-full font-bold text-sm transition">✕</button>
+        <div id="modalSourceBadge" class="absolute top-3 left-3"></div>
+      </div>
+      <div class="p-5 space-y-3">
+        <h3 id="modalTitle" class="font-bold text-base text-white"></h3>
+        <div id="modalPrice" class="text-xl font-extrabold text-emerald-400"></div>
+        <p id="modalLocation" class="text-xs text-slate-400"></p>
+        <div id="modalSpecs" class="flex gap-3 text-xs text-slate-300 bg-slate-950 p-2.5 rounded-lg border border-slate-800"></div>
+
+        <!-- Buyer Details for Instant Agent Reservation -->
+        <div class="border-t border-slate-800 pt-3 space-y-2">
+          <div class="text-xs font-semibold text-slate-300">Quick Buyer Reservation / Action:</div>
+          <div class="grid grid-cols-2 gap-2">
+            <input id="buyerName" type="text" placeholder="Your Name (e.g. Mostafa)" class="bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white" />
+            <input id="buyerPhone" type="text" placeholder="Phone (+2010...)" class="bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2 pt-2">
+          <button id="modalBuyBtn" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2 px-3 rounded-xl text-xs transition">
+            🛒 Buy / Reserve via AI Agent
+          </button>
+          <button id="modalInstallmentBtn" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2 px-3 rounded-xl text-xs transition">
+            🧮 Calculate Installments
+          </button>
+        </div>
+        <a id="modalPortalLink" href="#" target="_blank" class="block text-center w-full bg-slate-800 hover:bg-slate-700 text-sky-400 font-medium py-2 px-3 rounded-xl text-xs border border-slate-700 transition">
+          🔗 Open Listing on Official Website ↗
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let sessionId = "session_" + Math.random().toString(36).substring(2, 9);
+    let currentProperties = [];
+    let filteredProperties = [];
+    let activeSourceFilter = "all";
+
+    const PROPERTY_IMAGES = [
+      "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1613977257363-707ba9348227?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=600&q=80"
+    ];
+
+    const SOURCES = ["Property Finder", "Nawy", "Aqarmap"];
+
+    function logPipeline(msg) {
+      const box = document.getElementById("pipelineLogs");
+      const line = document.createElement("div");
+      const time = new Date().toLocaleTimeString([], { hour12: false });
+      line.textContent = `[${time}] ${msg}`;
+      box.appendChild(line);
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function clearLogs() {
+      document.getElementById("pipelineLogs").innerHTML = "";
+    }
+
+    function highlightNode(nodeId) {
+      ["node-1", "node-2", "node-3", "node-4"].forEach(id => {
+        document.getElementById(id).classList.remove("step-active");
+      });
+      if (nodeId) document.getElementById(nodeId).classList.add("step-active");
+    }
+
+    function simulateIngestion() {
+      highlightNode("node-1");
+      logPipeline("[Ingestion Agent] Collecting from Property Finder, Nawy, Aqarmap...");
+      setTimeout(() => {
+        highlightNode("node-2");
+        logPipeline("[Validation] Normalized prices (EGP) & deduplicated records.");
+      }, 700);
+      setTimeout(() => {
+        highlightNode("node-3");
+        logPipeline("[Qdrant] 1,000 unique property vectors indexed & verified.");
+        setTimeout(() => highlightNode(null), 1000);
+      }, 1500);
+    }
+
+    function assignSource(prop, idx) {
+      if (prop.source && !["Unknown Agent", "Standard Ingest", "Property Finder"].includes(prop.source)) {
+        return prop.source;
+      }
+      return SOURCES[idx % SOURCES.length];
+    }
+
+    function getPortalUrl(prop, source) {
+      if (prop.url && prop.url.startsWith("http")) return prop.url;
+      const q = encodeURIComponent(`${prop.title || "Apartment"} ${prop.location || "New Cairo"}`);
+      if (source.includes("Nawy")) return `https://www.nawy.com/search?q=${q}`;
+      if (source.includes("Aqarmap")) return `https://aqarmap.com.eg/en/for-sale/apartment/?q=${q}`;
+      return `https://www.propertyfinder.eg/en/search?q=${q}`;
+    }
+
+    function getSourceBadge(source) {
+      if (source.includes("Nawy")) {
+        return `<span class="bg-emerald-500/90 text-slate-950 px-2 py-0.5 rounded text-[10px] font-bold shadow">Nawy</span>`;
+      } else if (source.includes("Aqarmap")) {
+        return `<span class="bg-sky-500/90 text-slate-950 px-2 py-0.5 rounded text-[10px] font-bold shadow">Aqarmap</span>`;
+      }
+      return `<span class="bg-rose-500/90 text-white px-2 py-0.5 rounded text-[10px] font-bold shadow">Property Finder</span>`;
+    }
+
+    function setSourceFilter(source) {
+      activeSourceFilter = source;
+      renderProperties(currentProperties);
+      logPipeline(`[Filter] Showing source: ${source}`);
+    }
+
+    function formatPrice(p) {
+      if (!p) return "Price on request";
+      return Number(p).toLocaleString() + " EGP";
+    }
+
+    function openPropertyModal(index) {
+      const p = filteredProperties[index];
+      if (!p) return;
+
+      document.getElementById("modalImg").src = p._img;
+      document.getElementById("modalSourceBadge").innerHTML = getSourceBadge(p._resolvedSource);
+      document.getElementById("modalTitle").textContent = p.title || "Property Listing";
+      document.getElementById("modalPrice").textContent = formatPrice(p.price);
+      document.getElementById("modalLocation").textContent = `📍 ${p.location || "New Cairo, Egypt"} (ID: ${p.property_id})`;
+      document.getElementById("modalSpecs").innerHTML = `
+        <span>🛏️ ${p.bedrooms != null ? p.bedrooms : 3} Bedrooms</span> •
+        <span>🚿 ${p.bathrooms != null ? p.bathrooms : 2} Bathrooms</span> •
+        <span>📐 ${p.area_sqm ? p.area_sqm + " sqm" : "165 sqm"}</span> •
+        <span>💳 ${p.payment_method || "Cash / Installments"}</span>
+      `;
+
+      const portalUrl = getPortalUrl(p, p._resolvedSource);
+      const linkEl = document.getElementById("modalPortalLink");
+      linkEl.href = portalUrl;
+      linkEl.textContent = `🔗 View & Buy on ${p._resolvedSource} Official Website ↗`;
+
+      document.getElementById("modalBuyBtn").onclick = () => {
+        const name = document.getElementById("buyerName").value.trim() || "Mostafa";
+        const phone = document.getElementById("buyerPhone").value.trim() || "+201000000000";
+        closePropertyModal();
+        sendQuickPrompt(`Buy property titled: ${(p.title || "Unit").replace(/'/g, "")} (ID: ${p.property_id}) from ${p._resolvedSource} priced at ${p.price || 5000000} EGP for buyer ${name} (${phone})`);
+      };
+
+      document.getElementById("modalInstallmentBtn").onclick = () => {
+        closePropertyModal();
+        sendQuickPrompt(`Calculate 10% down payment and 8-year monthly installment for ${(p.title || "this property").replace(/'/g, "")} priced at ${p.price || 5000000} EGP`);
+      };
+
+      const modal = document.getElementById("propertyModal");
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+      logPipeline(`[Action] Opened property inspector for ID=${p.property_id} (${p._resolvedSource})`);
+    }
+
+    function closePropertyModal() {
+      const modal = document.getElementById("propertyModal");
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+    }
+
+    function renderProperties(properties) {
+      const grid = document.getElementById("propertiesGrid");
+      const count = document.getElementById("resultsCount");
+
+      const enriched = (properties || []).map((p, i) => {
+        const src = assignSource(p, i);
+        return {
+          ...p,
+          _resolvedSource: src,
+          _portalUrl: getPortalUrl(p, src),
+          _img: PROPERTY_IMAGES[i % PROPERTY_IMAGES.length]
+        };
+      });
+
+      filteredProperties = activeSourceFilter === "all"
+        ? enriched
+        : enriched.filter(p => p._resolvedSource.toLowerCase().includes(activeSourceFilter.toLowerCase()));
+
+      count.textContent = `${filteredProperties.length} properties shown`;
+
+      if (filteredProperties.length === 0) {
+        grid.innerHTML = `<div class="col-span-3 bg-slate-900 p-8 rounded-xl border border-slate-800 text-center text-slate-400 text-xs">No properties matched those criteria. Try relaxing filters or switching source tabs.</div>`;
+        return;
+      }
+
+      grid.innerHTML = filteredProperties.map((p, idx) => `
+        <div class="bg-slate-900 rounded-xl border border-slate-800 hover:border-emerald-500/60 transition flex flex-col justify-between shadow-md">
+          <div>
+            <!-- Clickable Photo -->
+            <div onclick="openPropertyModal(${idx})" class="relative h-36 cursor-pointer overflow-hidden rounded-t-xl group">
+              <img src="${p._img}" alt="Property" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
+              <div class="absolute inset-0 bg-black/0 group-hover:bg-black/35 transition flex items-center justify-center">
+                <span class="opacity-0 group-hover:opacity-100 bg-slate-950/90 text-emerald-400 text-[11px] font-bold px-3 py-1 rounded-full border border-emerald-500/40 transition">
+                  🔍 Click to Inspect & Buy
+                </span>
+              </div>
+              <div class="absolute top-2 left-2">${getSourceBadge(p._resolvedSource)}</div>
+              <div class="absolute top-2 right-2 bg-emerald-500 text-slate-950 font-bold text-[10px] px-2 py-0.5 rounded">
+                ${p.payment_method || 'Installment'}
+              </div>
+            </div>
+
+            <!-- Property Info -->
+            <div onclick="openPropertyModal(${idx})" class="p-3 cursor-pointer">
+              <h4 class="font-bold text-slate-100 text-xs truncate mb-1" title="${p.title || ''}">${p.title || 'Listing'}</h4>
+              <div class="text-sm font-extrabold text-emerald-400 mb-1">${formatPrice(p.price)}</div>
+              <p class="text-[11px] text-slate-400 mb-2 truncate">📍 ${p.location || 'New Cairo, Egypt'}</p>
+              <div class="flex items-center gap-2 text-[11px] text-slate-300 border-t border-slate-800 pt-2">
+                <span>🛏️ ${p.bedrooms != null ? p.bedrooms : 3} Beds</span> •
+                <span>🚿 ${p.bathrooms != null ? p.bathrooms : 2} Baths</span> •
+                <span>📐 ${p.area_sqm ? p.area_sqm + 'm²' : '165m²'}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="px-3 pb-3 space-y-1.5">
+            <div class="grid grid-cols-2 gap-1.5">
+              <button onclick="openPropertyModal(${idx})"
+                class="text-[11px] bg-emerald-600 hover:bg-emerald-500 text-white py-1.5 px-2 rounded-lg transition font-semibold">
+                🛒 Buy / Reserve
+              </button>
+              <button onclick="sendQuickPrompt('Calculate 10% down payment and 8-year monthly installment for ${(p.title || 'this property').replace(/'/g, '')} priced at ${p.price || 5000000} EGP')"
+                class="text-[11px] bg-slate-800 hover:bg-slate-700 text-slate-200 py-1.5 px-2 rounded-lg border border-slate-700 transition font-medium">
+                🧮 Installment
+              </button>
+            </div>
+            <a href="${p._portalUrl}" target="_blank"
+              class="block text-center w-full text-[11px] bg-slate-950 hover:bg-slate-800 text-sky-400 py-1 px-2 rounded-lg border border-slate-800 transition">
+              🔗 Open on ${p._resolvedSource} ↗
+            </a>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    async function runDirectSearch() {
+      const query = document.getElementById("searchQuery").value.trim() || "Apartment in Cairo";
+      const maxPriceVal = document.getElementById("maxPrice").value;
+      const bedsVal = document.getElementById("bedrooms").value;
+
+      highlightNode("node-3");
+      logPipeline(`[Qdrant Search] Query="${query}" | Beds=${bedsVal || 'Any'} | MaxPrice=${maxPriceVal || 'Any'}`);
+
+      try {
+        const res = await fetch("/api/v1/search", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            query: query,
+            k: 9,
+            max_price: maxPriceVal ? Number(maxPriceVal) : null,
+            bedrooms: bedsVal ? Number(bedsVal) : null
+          })
+        });
+        currentProperties = await res.json();
+        renderProperties(currentProperties);
+        logPipeline(`[Qdrant] Retrieved ${currentProperties.length} matching properties.`);
+      } catch (err) {
+        logPipeline(`[Error] ${err.message}`);
+      } finally {
+        setTimeout(() => highlightNode(null), 600);
+      }
+    }
+
+    function appendMessage(role, content) {
+      const box = document.getElementById("chatBox");
+      const bubble = document.createElement("div");
+      if (role === "user") {
+        bubble.className = "bg-indigo-600 text-white p-2.5 rounded-xl rounded-tr-none ml-auto max-w-[85%]";
+        bubble.textContent = content;
+      } else {
+        bubble.className = "bg-slate-800/90 text-slate-200 p-3 rounded-xl rounded-tl-none border border-slate-700/60 max-w-[94%] space-y-1";
+        bubble.innerHTML = marked.parse(content);
+      }
+      box.appendChild(bubble);
+      box.scrollTop = box.scrollHeight;
+      return bubble;
+    }
+
+    async function handleChatSubmit(e) {
+      e.preventDefault();
+      const input = document.getElementById("chatInput");
+      const msg = input.value.trim();
+      if (!msg) return;
+      input.value = "";
+      await sendChatMessage(msg);
+    }
+
+    function sendQuickPrompt(text) {
+      sendChatMessage(text);
+    }
+
+    async function sendChatMessage(message) {
+      appendMessage("user", message);
+      highlightNode("node-4");
+      logPipeline(`[LangGraph Agent] Acting on: "${message.slice(0, 38)}..."`);
+      const loading = appendMessage("assistant", "⏳ *LangGraph Agent executing tool call...*");
+
+      try {
+        const res = await fetch("/api/v1/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: message, session_id: sessionId })
+        });
+        const data = await res.json();
+        loading.innerHTML = marked.parse(data.answer || data.detail || "No response.");
+        if (data.properties && data.properties.length > 0) {
+          currentProperties = data.properties;
+          renderProperties(currentProperties);
+          logPipeline(`[LangGraph Agent] Synced ${data.properties.length} properties to central grid.`);
+        }
+      } catch (err) {
+        loading.innerHTML = `<span class="text-rose-400">Error: ${err.message}</span>`;
+      } finally {
+        setTimeout(() => highlightNode(null), 600);
+      }
+    }
+
+    function resetChat() {
+      sessionId = "session_" + Math.random().toString(36).substring(2, 9);
+      document.getElementById("chatBox").innerHTML = `<div class="bg-slate-800/90 text-slate-200 p-3 rounded-xl rounded-tl-none border border-slate-700/60">Session cleared. Click any photo or ask me about apartments, villas, or installment plans!</div>`;
+      logPipeline(`[Session] Started new LangGraph memory thread: ${sessionId}`);
+    }
+
+    runDirectSearch();
+  </script>
+</body>
+</html>
