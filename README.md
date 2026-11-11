@@ -41,7 +41,10 @@
                  4. FastAPI Backend + Web Portal UI
 
 
-📂 Project Structure
+---
+
+## 📂 Project Structure
+
 
 aqar-ai/
 ├── app/
